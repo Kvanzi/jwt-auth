@@ -1,0 +1,25 @@
+services:
+  postgres-1:
+    image: postgres:17
+    container_name: jwt-auth-postgres-1
+    restart: always
+    ports:
+      - "5432:5432"
+    networks:
+      - internal-network
+    volumes:
+      - postgres-1-data:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - .env
+
+
+volumes:
+  postgres-1-data: {}
+
+networks:
+  internal-network: {}
