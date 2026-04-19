@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.3'
+    id 'org.springframework.boot' version '4.1.0-M4'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -45,13 +45,17 @@ dependencies {
     implementation("org.mapstruct:mapstruct:${mapstructVersion}")
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
+    implementation platform("org.springframework.modulith:spring-modulith-bom:2.0.5")
+    implementation "org.springframework.modulith:spring-modulith-api"
+
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation "org.springframework.modulith:spring-modulith-starter-test"
 }
 
-tasks.named('test') {
+test {
     useJUnitPlatform()
 }

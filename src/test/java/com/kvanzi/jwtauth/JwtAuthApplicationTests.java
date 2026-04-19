@@ -1,13 +1,14 @@
 package com.kvanzi.jwtauth;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.modulith.core.ApplicationModules;
 
-@SpringBootTest
 class JwtAuthApplicationTests {
 
-    @Test
-    void contextLoads() {
-    }
+    private static final ApplicationModules modules = ApplicationModules.of(JwtAuthApplication.class);
 
+    @Test
+    void applicationModulesAreCompliant() {
+        modules.verify();
+    }
 }
