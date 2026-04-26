@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,12 +37,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (request.getCookies() == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String accessToken = extractAccessTokenFromCookies(request);
+        accessToken = accessToken != null ? accessToken : extractAccessTokenFromHeader(request);
 
         if (accessToken == null) {
             filterChain.doFilter(request, response);
@@ -79,5 +76,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private @Nullable String extractAccessTokenFromHeader(@NonNull HttpServletRequest request) {
+        return request.getHeader("access");
     }
 }
