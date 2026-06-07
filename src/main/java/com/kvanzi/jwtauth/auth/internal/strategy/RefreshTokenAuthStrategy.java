@@ -7,7 +7,7 @@ import com.kvanzi.jwtauth.auth.internal.entity.JwtToken;
 import com.kvanzi.jwtauth.auth.api.exception.InvalidJwtTokenException;
 import com.kvanzi.jwtauth.shared.security.SecurityUser;
 import com.kvanzi.jwtauth.auth.internal.service.JwtService;
-import com.kvanzi.jwtauth.user.api.security.UserDetailsService;
+import com.kvanzi.jwtauth.user.api.security.JpaUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RefreshTokenAuthStrategy implements AuthStrategy {
 
-    private final UserDetailsService userDetailsService;
+    private final JpaUserDetailsService userDetailsService;
     private final JwtService jwtService;
 
     @Override

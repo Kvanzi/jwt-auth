@@ -22,10 +22,10 @@ import java.util.Set;
 )
 public class User extends BaseEntity {
 
-    @Column(name = "username", length = 16)
+    @Column(name = "username", length = 32, unique = true, nullable = false)
     private @NonNull String username;
 
-    @Column(name = "password_hash", length = 60, nullable = false)
+    @Column(name = "password_hash", nullable = false)
     private @NonNull String passwordHash;
 
     @Setter(AccessLevel.NONE)
@@ -33,6 +33,7 @@ public class User extends BaseEntity {
     @CollectionTable(
             name = "user_roles"
     )
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private @NonNull Set<Role> roles = new HashSet<>(Set.of(Role.USER));
@@ -42,7 +43,7 @@ public class User extends BaseEntity {
     }
 
     public @NonNull User addRole(@NonNull Role role) {
-        Objects.requireNonNull(role, "Role cannot be null");
+        Objects.requireNonNull(role, "Role cannot be null")
         this.roles.add(role);
         return this;
     }

@@ -15,7 +15,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(
-        name = "jwt_tokens"
+        name = "jwt_tokens",
+        indexes = {
+                @Index(name = "idx_jwt_tokens_user_id", columnList = "user_id")
+        }
 )
 public class JwtToken extends BaseEntity {
 

@@ -1,14 +1,19 @@
 package com.kvanzi.jwtauth.auth.api.security;
 
 import com.kvanzi.jwtauth.shared.security.SecurityUser;
+import lombok.EqualsAndHashCode;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
+    @EqualsAndHashCode.Include
     private final String jwtToken;
+
+    @EqualsAndHashCode.Include
     private final SecurityUser securityUser;
 
     public JwtAuthenticationToken(@NonNull String jwtToken, @NonNull SecurityUser securityUser) {

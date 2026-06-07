@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 @Service
 public class JwtService {
 
+    private static final String TOKEN_TYPE_KEY = "token_type";
+
     private final JwtProperties jwtProperties;
     private final JwtTokenRepository tokenRepository;
     private final JwtParser verifiedJwtParser;
@@ -106,7 +108,7 @@ public class JwtService {
     }
 
     public JwtTokenType extractTokenType(Claims claims) {
-        return JwtTokenType.valueOf(claims.get("token_type", String.class));
+        return JwtTokenType.valueOf(claims.get(TOKEN_TYPE_KEY, String.class));
     }
 
     public Instant extractIssuedAt(Claims claims) {
@@ -145,7 +147,7 @@ public class JwtService {
                 .userId(userId)
                 .build();
         tokenEntity = tokenRepository.save(tokenEntity);
-        extraClaims.put("token_type", JwtTokenType.REFRESH);
+        extraClaims.put(TOKEN_TYPE_KEY, JwtTokenType.REFRESH);
 
         return generateToken(
                 issuedAt,
@@ -160,7 +162,7 @@ public class JwtService {
         Instant issuedAt = Instant.now();
         Instant expiresAt = issuedAt.plus(jwtProperties.getAccess().getDuration(), jwtProperties.getAccess().getDurationUnit());
 
-        extraClaims.put("token_type", JwtTokenType.ACCESS);
+        extraClaims.put(TOKEN_TYPE_KEY, JwtTokenType.ACCESS);
 
         return generateToken(
                 issuedAt,

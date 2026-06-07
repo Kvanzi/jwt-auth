@@ -4,6 +4,7 @@ import com.kvanzi.jwtauth.shared.security.SecurityUser;
 import com.kvanzi.jwtauth.user.internal.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
+public class JpaUserDetailsService implements UserDetailsService {
 
     private final UserService userService;
 

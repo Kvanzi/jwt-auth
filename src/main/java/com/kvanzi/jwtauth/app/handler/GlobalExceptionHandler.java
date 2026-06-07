@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
                         result -> result.getResolvableErrors().stream()
                                 .map(MessageSourceResolvable::getDefaultMessage)
                                 .filter(Objects::nonNull)
-                                .collect(Collectors.toList())
+                                .toList()
                 ));
 
         return ApiResponse.badRequestWithData("Validation exception", errors);

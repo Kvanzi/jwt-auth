@@ -19,6 +19,8 @@ import java.util.Objects;
 @Getter
 public class ApiResponse<D, M> {
 
+    private static final String RESOURCE_CREATED_MSG = "Resource created";
+
     @Nullable
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String reasonPhrase;
@@ -186,13 +188,13 @@ public class ApiResponse<D, M> {
             @NonNull D data,
             @NonNull URI location
     ) {
-        return success(HttpStatus.CREATED, "Resource created", data, location);
+        return success(HttpStatus.CREATED, RESOURCE_CREATED_MSG, data, location);
     }
 
     public static ResponseEntity<@NonNull ApiResponse<@Nullable Void, @Nullable Void>> created(
             @NonNull URI location
     ) {
-        return successNoContent(HttpStatus.CREATED, "Resource created", location);
+        return successNoContent(HttpStatus.CREATED, RESOURCE_CREATED_MSG, location);
     }
 
     public static <D> ResponseEntity<@NonNull ApiResponse<@NonNull D, @Nullable Void>> created(
@@ -207,7 +209,7 @@ public class ApiResponse<D, M> {
             @NonNull D data,
             @NonNull M meta
     ) {
-        return successWithMeta(HttpStatus.CREATED, "Resource created", data, meta);
+        return successWithMeta(HttpStatus.CREATED, RESOURCE_CREATED_MSG, data, meta);
     }
 
     public static ResponseEntity<@NonNull ApiResponse<@Nullable Void, @Nullable Void>> error(
@@ -327,7 +329,7 @@ public class ApiResponse<D, M> {
 
     @Override
     public String toString() {
-        return "ApiResponse:\n{\n\tstatusCode=%d,\n\tmessage='%s',\n\thasData=%s,\n\thasMeta=%s,\n\ttimestamp=%s\n}"
+        return "ApiResponse:%n{%n\tstatusCode=%d,%n\tmessage='%s',%n\thasData=%s,%n\thasMeta=%s,%n\ttimestamp=%s%n}"
                 .formatted(
                         status.value(),
                         message,
