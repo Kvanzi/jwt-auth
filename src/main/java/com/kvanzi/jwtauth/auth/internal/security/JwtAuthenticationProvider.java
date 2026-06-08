@@ -22,12 +22,12 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationProvider implements AuthenticationProvider {
-
     private final JwtService jwtService;
     private final JpaUserDetailsService userDetailsService;
 
     @Override
-    public @Nullable Authentication authenticate(@NonNull Authentication authentication) throws InvalidJwtTokenTypeException, JwtTokenExpiredException, InvalidJwtTokenException {
+    public @Nullable Authentication authenticate(@NonNull Authentication authentication)
+        throws InvalidJwtTokenTypeException, JwtTokenExpiredException, InvalidJwtTokenException {
         JwtAuthenticationToken unauthenticatedToken = (JwtAuthenticationToken) authentication;
         String jwtToken = (String) unauthenticatedToken.getCredentials();
 
@@ -48,10 +48,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             throw new InvalidJwtTokenException("Invalid access token. Re login please");
         }
 
-        JwtAuthenticationToken authenticatedToken = new JwtAuthenticationToken(
-                jwtToken,
-                user
-        );
+        JwtAuthenticationToken authenticatedToken = new JwtAuthenticationToken(jwtToken, user);
 
         if (user.getLastPasswordChangedAt() == null) {
             return authenticatedToken;

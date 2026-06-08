@@ -11,7 +11,6 @@ import org.jspecify.annotations.Nullable;
 @Getter
 @AllArgsConstructor
 public class CreateTokensRequest {
-
     @NotNull(message = "Grant type field cannot be null")
     private @NonNull GrantType grantType;
 

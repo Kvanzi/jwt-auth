@@ -2,14 +2,13 @@ package com.kvanzi.jwtauth.user.internal.entity;
 
 import com.kvanzi.jwtauth.shared.persistence.BaseEntity;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.jspecify.annotations.NonNull;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.jspecify.annotations.NonNull;
 
 @Getter
 @Setter
@@ -18,10 +17,9 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(
-        name = "users"
+    name = "users"
 )
 public class User extends BaseEntity {
-
     @Column(name = "username", length = 32, unique = true, nullable = false)
     private @NonNull String username;
 
@@ -31,7 +29,7 @@ public class User extends BaseEntity {
     @Setter(AccessLevel.NONE)
     @Builder.Default
     @CollectionTable(
-            name = "user_roles"
+        name = "user_roles"
     )
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
@@ -43,7 +41,7 @@ public class User extends BaseEntity {
     }
 
     public @NonNull User addRole(@NonNull Role role) {
-        Objects.requireNonNull(role, "Role cannot be null")
+        Objects.requireNonNull(role, "Role cannot be null");
         this.roles.add(role);
         return this;
     }

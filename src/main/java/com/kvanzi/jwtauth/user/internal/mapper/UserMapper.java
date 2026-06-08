@@ -13,7 +13,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
-
     @Mapping(target = "password", source = "passwordHash")
     @Mapping(target = "authorities", source = "roles")
     @Mapping(target = "lastPasswordChangedAt", ignore = true)

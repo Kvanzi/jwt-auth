@@ -1,12 +1,12 @@
 package com.kvanzi.jwtauth.auth.internal.strategy;
 
+import com.kvanzi.jwtauth.auth.api.exception.InvalidCredentialsException;
+import com.kvanzi.jwtauth.auth.api.exception.MissingCredentialsException;
 import com.kvanzi.jwtauth.auth.internal.dto.CreateTokensRequest;
 import com.kvanzi.jwtauth.auth.internal.dto.CreateTokensResult;
 import com.kvanzi.jwtauth.auth.internal.dto.GrantType;
-import com.kvanzi.jwtauth.auth.api.exception.InvalidCredentialsException;
-import com.kvanzi.jwtauth.auth.api.exception.MissingCredentialsException;
-import com.kvanzi.jwtauth.shared.security.IdentifiableUserDetails;
 import com.kvanzi.jwtauth.auth.internal.service.JwtService;
+import com.kvanzi.jwtauth.shared.security.IdentifiableUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 public class PasswordAuthStrategy implements AuthStrategy {
-
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
 
@@ -33,8 +32,8 @@ public class PasswordAuthStrategy implements AuthStrategy {
 
         try {
             Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    request.getUsername(),
-                    request.getPassword()
+                request.getUsername(),
+                request.getPassword()
             ));
 
             IdentifiableUserDetails userDetails = (IdentifiableUserDetails) auth.getPrincipal();
@@ -43,8 +42,8 @@ public class PasswordAuthStrategy implements AuthStrategy {
             }
 
             return new CreateTokensResult(
-                    jwtService.generateAccessToken(userDetails.getId()),
-                    jwtService.generateRefreshToken(userDetails.getId())
+                jwtService.generateAccessToken(userDetails.getId()),
+                jwtService.generateRefreshToken(userDetails.getId())
             );
         } catch (BadCredentialsException e) {
             throw new InvalidCredentialsException("Invalid login data");

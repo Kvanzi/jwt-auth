@@ -9,7 +9,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
-
     @EqualsAndHashCode.Include
     private final String jwtToken;
 

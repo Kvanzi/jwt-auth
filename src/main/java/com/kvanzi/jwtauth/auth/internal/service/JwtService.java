@@ -1,7 +1,7 @@
 package com.kvanzi.jwtauth.auth.internal.service;
 
-import com.kvanzi.jwtauth.auth.internal.dto.JwtSummary;
 import com.kvanzi.jwtauth.auth.api.exception.*;
+import com.kvanzi.jwtauth.auth.internal.dto.JwtSummary;
 import com.kvanzi.jwtauth.auth.internal.entity.JwtToken;
 import com.kvanzi.jwtauth.auth.internal.entity.JwtTokenType;
 import com.kvanzi.jwtauth.auth.internal.properties.JwtProperties;
@@ -9,6 +9,9 @@ import com.kvanzi.jwtauth.auth.internal.repository.JwtTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.transaction.Transactional;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -17,14 +20,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-
 @Slf4j
 @Service
 public class JwtService {
-
     private static final String TOKEN_TYPE_KEY = "token_type";
 
     private final JwtProperties jwtProperties;
@@ -35,8 +33,8 @@ public class JwtService {
         this.jwtProperties = jwtProperties;
         this.tokenRepository = tokenRepository;
         this.verifiedJwtParser = Jwts.parser()
-                .verifyWith(jwtProperties.getSigningKey())
-                .build();
+            .verifyWith(jwtProperties.getSigningKey())
+            .build();
     }
 
     @Transactional
@@ -68,9 +66,9 @@ public class JwtService {
         }
 
         Set<UUID> tokenIds = tokens.stream()
-                .map(this::extractClaims)
-                .map(this::extractTokenId)
-                .collect(Collectors.toSet());
+            .map(this::extractClaims)
+            .map(this::extractTokenId)
+            .collect(Collectors.toSet());
         revokeTokensByIds(tokenIds);
     }
 
@@ -84,15 +82,54 @@ public class JwtService {
         return generateRefreshToken(userId, new HashMap<>());
     }
 
+    private String generateRefreshToken(UUID userId, Map<String, Object> extraClaims) {
+        Instant issuedAt = Instant.now();
+        Instant expiresAt =
+            issuedAt.plus(jwtProperties.getRefresh().getDuration(), jwtProperties.getRefresh().getDurationUnit());
+
+        JwtToken tokenEntity = JwtToken.builder()
+            .tokenType(JwtTokenType.REFRESH)
+            .expiresAt(expiresAt)
+            .issuedAt(issuedAt)
+            .userId(userId)
+            .build();
+        tokenEntity = tokenRepository.save(tokenEntity);
+        extraClaims.put(TOKEN_TYPE_KEY, JwtTokenType.REFRESH);
+
+        return generateToken(
+            issuedAt,
+            expiresAt,
+            userId,
+            extraClaims,
+            tokenEntity.getId()
+        );
+    }
+
     public String generateAccessToken(UUID userId) {
         return generateAccessToken(userId, new HashMap<>());
+    }
+
+    private String generateAccessToken(UUID userId, Map<String, Object> extraClaims) {
+        Instant issuedAt = Instant.now();
+        Instant expiresAt =
+            issuedAt.plus(jwtProperties.getAccess().getDuration(), jwtProperties.getAccess().getDurationUnit());
+
+        extraClaims.put(TOKEN_TYPE_KEY, JwtTokenType.ACCESS);
+
+        return generateToken(
+            issuedAt,
+            expiresAt,
+            userId,
+            extraClaims,
+            null
+        );
     }
 
     public Claims extractClaims(String token) {
         try {
             return this.verifiedJwtParser
-                    .parseSignedClaims(token)
-                    .getPayload();
+                .parseSignedClaims(token)
+                .getPayload();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
@@ -128,54 +165,18 @@ public class JwtService {
         Claims claims = extractClaims(token);
 
         return new JwtSummary(
-                extractTokenId(claims),
-                extractUserId(claims),
-                extractTokenType(claims),
-                extractIssuedAt(claims),
-                isClaimsExpired(claims)
-        );
-    }
-
-    private String generateRefreshToken(UUID userId, Map<String, Object> extraClaims) {
-        Instant issuedAt = Instant.now();
-        Instant expiresAt = issuedAt.plus(jwtProperties.getRefresh().getDuration(), jwtProperties.getRefresh().getDurationUnit());
-
-        JwtToken tokenEntity = JwtToken.builder()
-                .tokenType(JwtTokenType.REFRESH)
-                .expiresAt(expiresAt)
-                .issuedAt(issuedAt)
-                .userId(userId)
-                .build();
-        tokenEntity = tokenRepository.save(tokenEntity);
-        extraClaims.put(TOKEN_TYPE_KEY, JwtTokenType.REFRESH);
-
-        return generateToken(
-                issuedAt,
-                expiresAt,
-                userId,
-                extraClaims,
-                tokenEntity.getId()
-        );
-    }
-
-    private String generateAccessToken(UUID userId, Map<String, Object> extraClaims) {
-        Instant issuedAt = Instant.now();
-        Instant expiresAt = issuedAt.plus(jwtProperties.getAccess().getDuration(), jwtProperties.getAccess().getDurationUnit());
-
-        extraClaims.put(TOKEN_TYPE_KEY, JwtTokenType.ACCESS);
-
-        return generateToken(
-                issuedAt,
-                expiresAt,
-                userId,
-                extraClaims,
-                null
+            extractTokenId(claims),
+            extractUserId(claims),
+            extractTokenType(claims),
+            extractIssuedAt(claims),
+            isClaimsExpired(claims)
         );
     }
 
     @Transactional
     public @NonNull JwtToken validateRefreshTokenOrThrow(@Nullable String refreshToken)
-            throws MissingRefreshTokenException, InvalidJwtTokenException, InvalidJwtTokenTypeException, JwtTokenExpiredException {
+        throws MissingRefreshTokenException, InvalidJwtTokenException, InvalidJwtTokenTypeException,
+        JwtTokenExpiredException {
         if (refreshToken == null || refreshToken.isBlank()) {
             throw new MissingRefreshTokenException("Refresh token cannot be null or blank");
         }
@@ -197,7 +198,7 @@ public class JwtService {
             }
 
             JwtToken refreshTokenEntity = findById(jwtSummary.getTokenId())
-                    .orElseThrow(() -> new InvalidJwtTokenException("Invalid refresh token. Re login please"));
+                .orElseThrow(() -> new InvalidJwtTokenException("Invalid refresh token. Re login please"));
 
             if (refreshTokenEntity.isRevoked()) {
                 throw new InvalidJwtTokenException("Invalid refresh token. Re login please");
@@ -224,7 +225,8 @@ public class JwtService {
         tokenRepository.delete(token);
     }
 
-    private String generateToken(@Nullable Instant issuedAt, @Nullable Instant expiresAt, @NonNull UUID userId, @Nullable Map<String, Object> extraClaims, @Nullable UUID tokenId) {
+    private String generateToken(@Nullable Instant issuedAt, @Nullable Instant expiresAt, @NonNull UUID userId,
+                                 @Nullable Map<String, Object> extraClaims, @Nullable UUID tokenId) {
         JwtBuilder builder = Jwts.builder();
 
         if (issuedAt != null) {
@@ -244,8 +246,8 @@ public class JwtService {
         }
 
         return builder
-                .subject(userId.toString())
-                .signWith(jwtProperties.getSigningKey())
-                .compact();
+            .subject(userId.toString())
+            .signWith(jwtProperties.getSigningKey())
+            .compact();
     }
 }

@@ -10,7 +10,6 @@ import org.jspecify.annotations.NonNull;
 @Getter
 @AllArgsConstructor
 public class CreateUserRequest {
-
     @NotNull(message = "Username field cannot be null")
     @ValidUsername
     private @NonNull String username;

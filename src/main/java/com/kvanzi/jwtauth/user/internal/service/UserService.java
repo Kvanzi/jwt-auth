@@ -1,25 +1,24 @@
 package com.kvanzi.jwtauth.user.internal.service;
 
+import com.kvanzi.jwtauth.shared.security.SecurityUser;
+import com.kvanzi.jwtauth.user.api.exception.UsernameTakenException;
 import com.kvanzi.jwtauth.user.internal.dto.CreateUserRequest;
 import com.kvanzi.jwtauth.user.internal.dto.PrivateUserResponse;
 import com.kvanzi.jwtauth.user.internal.entity.User;
-import com.kvanzi.jwtauth.user.api.exception.UsernameTakenException;
 import com.kvanzi.jwtauth.user.internal.mapper.UserMapper;
 import com.kvanzi.jwtauth.user.internal.repository.UserRepository;
-import com.kvanzi.jwtauth.shared.security.SecurityUser;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
@@ -30,19 +29,18 @@ public class UserService {
             throw new UsernameTakenException("This username is taken by another user");
         }
 
-        String encodedPassword = passwordEncoder.encode(requestBody.getPassword());
-
-        if (encodedPassword == null) {
-            throw new IllegalStateException("Password encoder returned null value");
-        }
+        String encodedPassword = Objects.requireNonNull(
+            passwordEncoder.encode(requestBody.getPassword()),
+            "Password encoder returned null value"
+        );
 
         User user = User.builder()
-                .username(requestBody.getUsername())
-                .passwordHash(encodedPassword)
-                .build();
+            .username(requestBody.getUsername())
+            .passwordHash(encodedPassword)
+            .build();
 
         return userMapper.mapToPrivateUserResponse(
-                userRepository.save(user)
+            userRepository.save(user)
         );
     }
 

@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 public class RefreshTokenAuthStrategy implements AuthStrategy {
-
     private final JpaUserDetailsService userDetailsService;
     private final JwtService jwtService;
 
